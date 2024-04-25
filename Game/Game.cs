@@ -28,7 +28,7 @@ namespace Game
         -0.6f, -0.5f, -1.7f
         };
 
-        float[] logsVertices = {
+        float[] targetVertices = {
         -0.6f, -0.2f, -1.7f,
         -0.2f, -0.2f, -1.7f,
         -0.2f, -0.5f, -1.7f,
@@ -76,21 +76,18 @@ namespace Game
         int gunEbo;
         int gunTextureID;
         int gunTextureVBO;
-        int gunIndecesLength;
 
-        int logsVao;
-        int logsVbo;
-        int logsEbo;
-        int logsTextureID;
-        int logsTextureVBO;
-        int logsIndecesLength;
+        int targetVao;
+        int targetVbo;
+        int targetEbo;
+        int targetTextureID;
+        int targetTextureVBO;
 
         int wallVao;
         int wallVbo;
         int wallEbo;
         int wallTextureID;
         int wallTextureVBO;
-        int wallIndecesLength;
 
         int ballVao;
         int ballVbo;
@@ -127,11 +124,11 @@ namespace Game
         float speedX = BaseSpeedX;
         float stepX = 0f;
 
-        float ballPosX = 0.0f;
+        float ballPosX = -0.2f;
         float ballPosY = 0.0f;
 
-        float logsPosX = 1.1f;
-        float logsPosY = 0.0f;
+        float targetPosX = 1.1f;
+        float targetPosY = 0.0f;
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title }) { this.width = width; this.height = height; }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -152,7 +149,7 @@ namespace Game
             base.OnLoad();
 
             string gunPath = "C:\\Users\\alexe\\Desktop\\Game\\Game\\gun.png";
-            string logsPath = "C:\\Users\\alexe\\Desktop\\Game\\Game\\logs.png";
+            string targetPath = "C:\\Users\\alexe\\Desktop\\Game\\Game\\target.png";
             string wallPath = "C:\\Users\\alexe\\Desktop\\Game\\Game\\wall.png";
             string ballPath = "C:\\Users\\alexe\\Desktop\\Game\\Game\\cannonball.png";
             string boomPath = "C:\\Users\\alexe\\Desktop\\Game\\Game\\boom.png";
@@ -201,44 +198,44 @@ namespace Game
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            //logs
-            logsVao = GL.GenVertexArray();
-            GL.BindVertexArray(logsVao);
+            //target
+            targetVao = GL.GenVertexArray();
+            GL.BindVertexArray(targetVao);
 
-            logsVbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, logsVbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, logsVertices.Length * sizeof(float), logsVertices, BufferUsageHint.StaticDraw);
+            targetVbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, targetVbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, targetVertices.Length * sizeof(float), targetVertices, BufferUsageHint.StaticDraw);
 
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
-            GL.EnableVertexArrayAttrib(logsVao, 0);
+            GL.EnableVertexArrayAttrib(targetVao, 0);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
-            logsEbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, logsEbo);
+            targetEbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, targetEbo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indeces.Length * sizeof(uint), indeces, BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
-            logsTextureVBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, logsTextureVBO);
+            targetTextureVBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, targetTextureVBO);
             GL.BufferData(BufferTarget.ArrayBuffer, texCoord.Length * sizeof(float), texCoord, BufferUsageHint.StaticDraw);
 
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, 0);
-            GL.EnableVertexArrayAttrib(logsVao, 1);
+            GL.EnableVertexArrayAttrib(targetVao, 1);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             GL.BindVertexArray(0);
 
-            logsTextureID = GL.GenTexture();
+            targetTextureID = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, logsTextureID);
+            GL.BindTexture(TextureTarget.Texture2D, targetTextureID);
 
             StbImage.stbi_set_flip_vertically_on_load(1);
 
-            ImageResult logsImage = ImageResult.FromStream(File.OpenRead(logsPath), ColorComponents.RedGreenBlueAlpha);
+            ImageResult targetImage = ImageResult.FromStream(File.OpenRead(targetPath), ColorComponents.RedGreenBlueAlpha);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, logsImage.Width, logsImage.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, logsImage.Data);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, targetImage.Width, targetImage.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, targetImage.Data);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
@@ -412,6 +409,34 @@ namespace Game
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
         }
+        protected override void OnUpdateFrame(FrameEventArgs args)
+        {
+            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)) { Close(); }
+
+            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.W))
+            {
+
+                if (!flight && angle <= 90) { angle += 0.0005f; }
+            }
+
+            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.S))
+            {
+
+                if (!flight && angle <= 90) { angle -= 0.0005f; }
+            }
+
+            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter))
+            {
+
+                if (!flight)
+                {
+                    flight = true;
+                    stepY = startStepY * angle;
+                    stepX = startStepX * angle;
+                }
+            }
+            base.OnUpdateFrame(args);
+        }
 
         protected override void OnUnload()
         {
@@ -421,10 +446,10 @@ namespace Game
             GL.DeleteBuffer(gunEbo);
             GL.DeleteTexture(gunTextureID);
 
-            GL.DeleteVertexArray(logsVao);
-            GL.DeleteBuffer(logsVbo);
-            GL.DeleteBuffer(logsEbo);
-            GL.DeleteTexture(logsTextureID);
+            GL.DeleteVertexArray(targetVao);
+            GL.DeleteBuffer(targetVbo);
+            GL.DeleteBuffer(targetEbo);
+            GL.DeleteTexture(targetTextureID);
 
             GL.DeleteVertexArray(wallVao);
             GL.DeleteBuffer(wallVbo);
@@ -512,74 +537,72 @@ namespace Game
 
                 GL.DrawElements(PrimitiveType.Triangles, indeces.Length, DrawElementsType.UnsignedInt, 0);
 
-                //logs
-                GL.BindVertexArray(logsVao);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, logsEbo);
-                GL.BindTexture(TextureTarget.Texture2D, logsTextureID);
+                //target
+                GL.BindVertexArray(targetVao);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, targetEbo);
+                GL.BindTexture(TextureTarget.Texture2D, targetTextureID);
 
-                Matrix4 logsModel = Matrix4.Identity;
-                Matrix4 logsView = Matrix4.Identity;
-                Matrix4 logsProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), width / height, 0.1f, 100.0f);
+                Matrix4 targetModel = Matrix4.Identity;
+                Matrix4 targetView = Matrix4.Identity;
+                Matrix4 targetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), width / height, 0.1f, 100.0f);
 
-                Matrix4 logsTranslation = Matrix4.CreateTranslation(logsPosX, logsPosY, 0f);
-                logsModel *= logsTranslation;
+                Matrix4 targetTranslation = Matrix4.CreateTranslation(targetPosX, targetPosY, 0f);
+                targetModel *= targetTranslation;
 
-                int logsModelLocation = GL.GetUniformLocation(shaderProgram, "model");
-                int logsViewLocation = GL.GetUniformLocation(shaderProgram, "view");
-                int logsProjectionLocation = GL.GetUniformLocation(shaderProgram, "projection");
+                int targetModelLocation = GL.GetUniformLocation(shaderProgram, "model");
+                int targetViewLocation = GL.GetUniformLocation(shaderProgram, "view");
+                int targetProjectionLocation = GL.GetUniformLocation(shaderProgram, "projection");
 
-                GL.UniformMatrix4(logsModelLocation, true, ref logsModel);
-                GL.UniformMatrix4(logsViewLocation, true, ref logsView);
-                GL.UniformMatrix4(logsProjectionLocation, true, ref logsProjection);
+                GL.UniformMatrix4(targetModelLocation, true, ref targetModel);
+                GL.UniformMatrix4(targetViewLocation, true, ref targetView);
+                GL.UniformMatrix4(targetProjectionLocation, true, ref targetProjection);
 
                 GL.DrawElements(PrimitiveType.Triangles, indeces.Length, DrawElementsType.UnsignedInt, 0);
 
                 //ball
-                GL.BindVertexArray(ballVao);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, ballEbo);
-                GL.BindTexture(TextureTarget.Texture2D, ballTextureID);
+                if (flight)
+                {
+                    GL.BindVertexArray(ballVao);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, ballEbo);
+                    GL.BindTexture(TextureTarget.Texture2D, ballTextureID);
 
-                Matrix4 ballModel = Matrix4.Identity;
-                Matrix4 ballView = Matrix4.Identity;
-                Matrix4 ballProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), width / height, 0.1f, 100.0f);
+                    Matrix4 ballModel = Matrix4.Identity;
+                    Matrix4 ballView = Matrix4.Identity;
+                    Matrix4 ballProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), width / height, 0.1f, 100.0f);
 
-                Matrix4 ballTranslation = Matrix4.CreateTranslation(ballPosX, ballPosY +0.1f, 0f);
-                ballModel *= ballTranslation;
+                    Matrix4 ballTranslation = Matrix4.CreateTranslation(ballPosX, ballPosY + 0.1f, 0f);
+                    ballModel *= ballTranslation;
 
-                int ballModelLocation = GL.GetUniformLocation(shaderProgram, "model");
-                int ballViewLocation = GL.GetUniformLocation(shaderProgram, "view");
-                int ballProjectionLocation = GL.GetUniformLocation(shaderProgram, "projection");
+                    int ballModelLocation = GL.GetUniformLocation(shaderProgram, "model");
+                    int ballViewLocation = GL.GetUniformLocation(shaderProgram, "view");
+                    int ballProjectionLocation = GL.GetUniformLocation(shaderProgram, "projection");
 
-                GL.UniformMatrix4(ballModelLocation, true, ref ballModel);
-                GL.UniformMatrix4(ballViewLocation, true, ref ballView);
-                GL.UniformMatrix4(ballProjectionLocation, true, ref ballProjection);
+                    GL.UniformMatrix4(ballModelLocation, true, ref ballModel);
+                    GL.UniformMatrix4(ballViewLocation, true, ref ballView);
+                    GL.UniformMatrix4(ballProjectionLocation, true, ref ballProjection);
 
-                GL.DrawElements(PrimitiveType.Triangles, indeces.Length, DrawElementsType.UnsignedInt, 0);
+                    GL.DrawElements(PrimitiveType.Triangles, indeces.Length, DrawElementsType.UnsignedInt, 0);
+                }
 
-
-                if (ballPosX == logsPosX && ballPosY==logsPosY)
+                if (Math.Abs(ballPosX-targetPosX)<0.15f && Math.Abs(ballPosY - targetPosY) < 0.15f)
                 {
                     GL.BindVertexArray(boomVao);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, boomEbo);
-                    GL.BindTexture(TextureTarget.Texture2D, ballTextureID);
+                    GL.BindTexture(TextureTarget.Texture2D, boomTextureID);
 
-                    Matrix4 boomModel = Matrix4.Identity;
-                    Matrix4 boomView = Matrix4.Identity;
+                    Matrix4 boomModel = Matrix4.CreateTranslation(targetPosX, targetPosY, 0f);
+                    Matrix4 boomView = Matrix4.Identity; 
                     Matrix4 boomProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), width / height, 0.1f, 100.0f);
-
-                    Matrix4 boomTranslation = Matrix4.CreateTranslation(ballPosX, ballPosY + 0.1f, 0f);
-                    ballModel *= boomTranslation;
 
                     int boomModelLocation = GL.GetUniformLocation(shaderProgram, "model");
                     int boomViewLocation = GL.GetUniformLocation(shaderProgram, "view");
                     int boomProjectionLocation = GL.GetUniformLocation(shaderProgram, "projection");
 
-                    GL.UniformMatrix4(boomModelLocation, true, ref ballModel);
-                    GL.UniformMatrix4(boomViewLocation, true, ref ballView);
-                    GL.UniformMatrix4(boomProjectionLocation, true, ref ballProjection);
+                    GL.UniformMatrix4(boomModelLocation, true, ref boomModel);
+                    GL.UniformMatrix4(boomViewLocation, true, ref boomView);
+                    GL.UniformMatrix4(boomProjectionLocation, true, ref boomProjection);
 
                     GL.DrawElements(PrimitiveType.Triangles, indeces.Length, DrawElementsType.UnsignedInt, 0);
-                    Thread.Sleep(10000);
                 }
 
                 Context.SwapBuffers();
@@ -587,35 +610,6 @@ namespace Game
             }
 
             base.OnRenderFrame(args);
-        }
-
-        protected override void OnUpdateFrame(FrameEventArgs args)
-        {
-            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)){Close();}
-
-            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.W))
-            {
-
-                if (!flight && angle <= 90) {angle += 0.0005f; }
-            }
-
-            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.S))
-            {
-
-                if (!flight && angle <= 90) { angle -= 0.0005f; }
-            }
-
-            if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter))
-            {
-
-                if (!flight)
-                {
-                    flight = true;
-                    stepY = startStepY*angle;
-                    stepX = startStepX*angle;
-                }
-            }
-            base.OnUpdateFrame(args);
         }
     }
 }
