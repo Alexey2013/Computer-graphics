@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "dgSpecHash": "msFM+OD6KTpSpEnWa+TF/au9MFotWzvWNtcUauJqArrpO7qTgdWR8Lyn9quHUJwiKenqzuZ+qBlB5yVbMmPHdA==",
+  "success": false,
+  "projectFilePath": "E:\\Game2\\Shooter\\Game2.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Не удалось загрузить индекс служб для источника https://api.nuget.org/v3/index.json.",
+      "libraryId": "OpenTK"
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Не удалось загрузить индекс служб для источника https://api.nuget.org/v3/index.json.",
+      "libraryId": "StbImageSharp"
+    }
+  ]
+}
